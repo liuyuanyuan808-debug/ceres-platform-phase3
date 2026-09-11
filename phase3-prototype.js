@@ -1,41 +1,358 @@
-(()=>{
-const A=document.querySelector('#app'),O=document.querySelector('#overlay'),M=document.querySelector('#dialog-message'),T=document.querySelector('#toast');
-const P=[
-['LP-001','V3 Pro 中文语言包','zh-CN','V1.3.0','V3 Pro','HW 2.0+','V3.4.0+','428 KB','正式发布'],
-['LP-002','V3 Pro English Pack','en-US','V1.2.1','V3 Pro','HW 2.0+','V3.4.0+','412 KB','灰度'],
-['LP-003','V3 Pro Deutsch Pack','de-DE','V1.0.0','V3 Pro','HW 2.0+','V3.5.0+','436 KB','草稿'],
-['LP-014','Air 2 中文语言包','zh-CN','V1.1.0','Air 2','HW 1.1+','V2.8.0+','405 KB','已停止']];
-const R=[
-['POL-1008','V3 Pro 中文正式发布','V3 Pro 中文语言包 V1.3.0','V3 Pro / HW 2.0+ / 固件 V3.4.0+','全部渠道','全部设备','正式发布','100%'],
-['POL-1009','V3 Pro 英文 20% 灰度','V3 Pro English Pack V1.2.1','V3 Pro / HW 2.0+ / 固件 V3.4.0+','Amazon US','随机设备','灰度','20%'],
-['POL-1010','德语测试设备','V3 Pro Deutsch Pack V1.0.0','V3 Pro / HW 2.0+ / 固件 V3.5.0+','EU','白名单 12 台','测试','12 台'],
-['POL-0993','英文问题版本停止策略','V3 Pro English Pack V1.2.0','V3 Pro / HW 2.0+ / 固件 V3.3.0+','全部渠道','全部设备','已停止','0%']];
-const U=[
-['TASK-4821','V3P-A8F214','zh-CN','V1.2.0','V1.3.0','更新成功','-','18.6 s'],
-['TASK-4817','V3P-B19C02','en-US','V1.2.0','V1.2.1','写入失败','DEVICE_WRITE_FAILED','17.9 s'],
-['TASK-4809','V3P-71AC30','en-US','V1.2.0','V1.2.1','下载失败','PACKAGE_DOWNLOAD_TIMEOUT','8.0 s'],
-['TASK-4795','V3P-33E911','zh-CN','V1.3.0','-','无需更新','no_update','0.3 s'],
-['TASK-4788','V3P-6DD220','zh-CN','V1.2.0','V1.3.0','蓝牙传输失败','BLE_TRANSFER_INTERRUPTED','12.2 s'],
-['TASK-4772','V3P-C3017A','zh-CN','V1.2.0','V1.3.0','设备校验失败','PACKAGE_HASH_MISMATCH','16.1 s']];
-const N={packs:['语言包资源','语言包文件及版本管理'],rules:['发布策略','定向范围与发布节奏'],tasks:['更新任务','端到端更新结果追踪'],stats:['审计统计','发布效果与操作留痕']},S={s:location.hash.slice(1)in N?location.hash.slice(1):'packs',q:'',f:'all',layer:'',pending:null};
-const tag=x=>'<span class="tag tag--small tag--'+({'正式发布':'success','更新成功':'success','灰度':'primary','测试':'purple','草稿':'warning','已停止':'info','无需更新':'info','下载失败':'danger','蓝牙传输失败':'danger','设备校验失败':'danger','写入失败':'danger'}[x]||'info')+'">'+x+'</span>';
-const side=()=>'<aside class="sidebar"><div class="brand-row"><div class="brand-logo">C</div><div class="brand"><strong>Ceres平台三期</strong></div></div><nav class="sidebar-menu"><button class="sidebar-menu__parent is-active"><span class="sidebar-menu__label">多语言包管理</span></button><div class="sidebar-menu__children">'+Object.entries(N).map(([k,v])=>'<a class="sidebar-menu__child'+(S.s===k?' is-active':'')+'" data-nav="'+k+'" href="#'+k+'"><span class="sidebar-menu__label">'+v[0]+'</span></a>').join('')+'</div><div class="phase3-nav-note">三期独立原型<br>旧版配置能力保持不变</div><a class="sidebar-menu__parent" href="https://liuyuanyuan808-debug.github.io/ceres-platform/#mode-units"><span class="sidebar-menu__label">返回原平台</span></a></nav><div class="user-footer"><div class="user-card"><img class="avatar-image" src="./assets/ceres-avatar.png"><div class="user-card__info"><span>当前登录</span><strong>刘媛媛</strong></div></div></div></aside>';
-const shell=(b,a='')=>'<div class="admin-shell">'+side()+'<main class="content-shell"><section class="page-stack"><header class="page-header-bar"><div><h1>'+N[S.s][0]+'</h1><p class="section-subheading">'+N[S.s][1]+'</p></div><div class="page-header-actions">'+a+'</div></header>'+b+'</section></main></div>';
-const filt=(ph,op)=>'<section class="filter-toolbar phase3-toolbar"><input class="control" id="q" value="'+S.q+'" placeholder="'+ph+'"><div class="select-wrap"><select class="control" id="f"><option value="all">全部状态</option>'+op.map(x=>'<option'+(S.f===x?' selected':'')+'>'+x+'</option>').join('')+'</select></div><span></span><button class="btn btn--outline" id="reset">重置</button></section>';
-const table=(t,d,h,r,w)=>'<section class="list-table-card"><div class="table-title-row"><h2 class="section-heading">'+t+'</h2><p class="section-subheading">'+d+'</p></div><div class="table-shell"><div class="data-table-scroll-region"><table class="data-table" style="min-width:'+w+'px"><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+r+'</tbody></table></div></div><footer class="pagination-bar"><span>共 '+((r.match(/<tr/g)||[]).length)+' 条记录 · 每页 10 条</span></footer></section>';
-const info=x=>'<div class="info-banner"><strong>'+x[0]+'</strong><span>'+x[1]+'</span></div>';
-const kpi=x=>'<section class="kpi-strip">'+x.map(y=>'<div class="kpi-item"><span>'+y[0]+'</span><strong>'+y[1]+'</strong><small>'+y[2]+'</small></div>').join('')+'</section>';
-function page(){let b='',a='',rows;if(S.s==='packs'){rows=P.filter(x=>(S.f==='all'||x[8]===S.f)&&x.join().toLowerCase().includes(S.q.toLowerCase())).map(x=>'<tr><td><strong>'+x[1]+'</strong><small>'+x[0]+'</small></td><td>'+x[2]+'</td><td><strong>'+x[3]+'</strong></td><td>'+x[4]+'</td><td>'+x[5]+'</td><td>'+x[6]+'</td><td>'+x[7]+'</td><td>'+tag(x[8])+'</td><td class="actions"><button data-pack="'+x[0]+'">查看</button><button data-ver="'+x[0]+'">新建版本</button></td></tr>').join('');b=info(['管理边界','Ceres 管理嵌软提供的文件、版本与适配关系，不生成或解析包内容。APP 下载透传，设备校验并覆盖写入。'])+filt('搜索名称、语种、机型或版本',['草稿','灰度','正式发布','已停止'])+table('语言包资源列表','每个语种独立维护版本；同一机型、语种和版本号不可重复。',['语言包','语种','版本','机型','硬件版本','固件版本','大小','状态','操作'],rows,1160);a='<button class="btn btn--primary" id="upload">上传语言包</button>'}
-if(S.s==='rules'){rows=R.filter(x=>(S.f==='all'||x[6]===S.f)&&x.join().toLowerCase().includes(S.q.toLowerCase())).map(x=>'<tr><td><strong>'+x[1]+'</strong><small>'+x[0]+'</small></td><td>'+x[2]+'</td><td>'+x[3]+'</td><td>'+x[4]+'</td><td>'+x[5]+'</td><td>'+tag(x[6])+'</td><td>'+x[7]+'</td><td class="actions"><button data-rule="'+x[0]+'">查看</button>'+(x[6]==='测试'||x[6]==='灰度'?'<button data-next="'+x[0]+'">'+(x[6]==='测试'?'进入灰度':'正式发布')+'</button>':'')+(!['已停止'].includes(x[6])?'<button class="danger" data-stop="'+x[0]+'">停止</button>':'')+'<button data-back="'+x[0]+'">回滚</button></td></tr>').join('');b=info(['发布顺序','草稿 → 测试 → 灰度 → 正式发布。命中返回目标版本、地址、大小、哈希和校验标签；范围冲突时禁止发布。'])+filt('搜索策略、语言包、机型或渠道',['测试','灰度','正式发布','已停止'])+table('发布策略列表','机型、硬件、固件、APP、渠道、语种与设备范围共同决定是否命中。',['策略名称','目标语言包','兼容范围','渠道','设备范围','阶段','覆盖','操作'],rows,1350);a='<button class="btn btn--outline" id="sim">模拟检查更新</button><button class="btn btn--primary" id="new-rule">新建发布策略</button>'}
-if(S.s==='tasks'){rows=U.filter(x=>(S.f==='all'||x[5]===S.f)&&x.join().toLowerCase().includes(S.q.toLowerCase())).map(x=>'<tr><td><strong>'+x[0]+'</strong></td><td>'+x[1]+'</td><td>'+x[2]+'</td><td>'+x[3]+'</td><td>'+x[4]+'</td><td>'+tag(x[5])+'</td><td><code>'+x[6]+'</code></td><td>'+x[7]+'</td><td class="actions"><button data-task="'+x[0]+'">查看链路</button></td></tr>').join('');b=kpi([['今日检查请求','1,284','较昨日 +8.4%'],['命中更新','726','命中率 56.5%'],['设备更新成功','668','成功率 92.0%'],['待处理失败','18','已按阶段归因']])+filt('搜索任务 ID、设备 SN 或错误码',['无需更新','更新成功','下载失败','蓝牙传输失败','设备校验失败','写入失败'])+table('更新任务列表','按下载、蓝牙传输、设备校验和写入阶段拆分结果。',['任务 ID','设备 SN','语种','当前版本','目标版本','结果','错误码','耗时','操作'],rows,1120);a='<button class="btn btn--outline" id="sim">模拟检查更新</button>'}
-if(S.s==='stats'){let bar=(t,x)=>'<div class="metric-panel"><h3>'+t+'</h3>'+x.map(y=>'<div class="bar-row"><span>'+y[0]+'</span><div class="bar-track"><div class="bar-fill '+(y[3]||'')+'" style="width:'+y[1]+'%"></div></div><strong>'+y[2]+'</strong></div>').join('')+'</div>',logs=[['2026-09-10 11:06','刘媛媛','创建测试发布','POL-1010','-','测试 / 12 台','德语包验证'],['2026-09-10 09:45','刘媛媛','调整灰度比例','POL-1009','10%','20%','结果稳定'],['2026-09-09 18:10','陈剑泽','正式发布','POL-1008','灰度 50%','正式 100%','验收通过'],['2026-09-07 20:12','池浩','停止发布','POL-0993','正式发布','已停止','校验异常']];b=kpi([['检查请求','38,624','近 7 天'],['规则命中','21,890','命中率 56.7%'],['设备更新成功','20,253','成功率 92.5%'],['失败可归因率','99.2%','13 条待补充']])+'<section class="metric-layout">'+bar('更新漏斗',[['检查请求',100,'38,624'],['规则命中',57,'21,890'],['下载成功',55,'21,202'],['设备更新成功',52,'20,253','success']])+bar('状态分布',[['更新成功',92,'20,253','success'],['下载失败',15,'688','warning'],['传输失败',10,'461','warning'],['校验/写入失败',8,'614','danger']])+'</section>'+table('操作审计日志','上传、发布、停止和回滚均记录操作人、原因及变更前后值。',['操作时间','操作人','操作类型','对象','变更前','变更后','操作原因'],logs.map(x=>'<tr>'+x.map(v=>'<td>'+v+'</td>').join('')+'</tr>').join(''),1060)}
-return shell('<div class="list-page-body">'+b+'</div>',a)}
-const field=(l,id,v='')=>'<label><span class="field-label">'+l+'</span><input class="control" id="'+id+'" value="'+v+'"></label>';
-function modal(t,s,b,ok){return '<div class="modal-backdrop" data-close-bg><section class="phase3-modal"><header><div><h2>'+t+'</h2><p>'+s+'</p></div><button class="dialog-close" data-close>×</button></header><div class="phase3-modal__body">'+b+'</div><footer><button class="btn btn--outline" data-close>取消</button><button class="btn btn--primary" id="ok">'+ok+'</button></footer></section></div>'}
-function draw(t,s,b,f=''){return '<div class="drawer-backdrop" data-close-bg><aside class="drawer"><header><div><h2>'+t+'</h2><p>'+s+'</p></div><button class="dialog-close" data-close>×</button></header><div class="drawer__body">'+b+'</div>'+(f?'<div class="drawer__footer">'+f+'</div>':'')+'</aside></div>'}
-function layer(){document.querySelectorAll('.modal-backdrop,.drawer-backdrop').forEach(x=>x.remove());let h='',x;if(S.layer==='upload'||S.layer.startsWith('ver:')){x=S.layer.startsWith('ver:')?P.find(y=>y[0]===S.layer.split(':')[1]):null;h=modal(x?'新建语言包版本':'上传语言包','上传嵌软生成的完整文件','<div class="phase3-form"><div class="full"><span class="field-label">语言包文件 *</span><label class="file-drop"><input hidden type="file" id="file"><span>点击选择 .bin / .zip，单文件不超过 5 MB</span></label><p class="field-help">Ceres 仅存储和透传，不解析包内容。</p></div>'+field('语言包名称 *','name',x?.[1]||'')+field('版本号 *','version',x?'V1.3.1':'V1.0.0')+field('语种 *','locale',x?.[2]||'zh-CN')+field('适用机型 *','model',x?.[4]||'V3 Pro')+field('硬件范围 *','hw',x?.[5]||'HW 2.0+')+field('固件范围 *','fw',x?.[6]||'V3.4.0+')+field('SHA256 *','hash','自动读取')+field('校验标签 *','tag','v3pro-zh-1.3.1')+'<label class="full"><span class="field-label">版本说明 *</span><textarea class="control" id="note"></textarea></label><p class="validation-error full" id="error"></p></div>','保存为草稿')}else if(S.layer==='new-rule')h=modal('新建发布策略','配置语言包与定向命中范围','<div class="phase3-form">'+field('策略名称 *','rn','V3 Pro 中文发布')+field('目标语言包 *','rp','V3 Pro 中文语言包 V1.3.0')+field('机型 *','rm','V3 Pro')+field('语种 *','rl','zh-CN')+field('硬件范围 *','rh','HW 2.0+')+field('固件范围 *','rf','V3.4.0+')+field('APP 范围 *','ra','6.8.0+')+field('渠道 *','rc','全部渠道')+'<div class="full"><span class="field-label">设备范围 *</span><div class="radio-line"><label><input type="radio" checked> 测试白名单</label><label><input type="radio"> 灰度比例</label><label><input type="radio"> 全部设备</label></div></div>'+info(['冲突检查','当前未发现同范围、同语种的生效策略。'])+'</div>','创建测试策略');else if(S.layer==='sim')h=modal('模拟检查更新','按真实接口入参验证规则命中结果','<div class="phase3-form">'+field('设备 SN *','sd','V3P-A8F214')+field('机型 *','sm','V3 Pro')+field('硬件版本 *','sh','HW 2.1')+field('固件版本 *','sf','V3.4.2')+field('APP 版本 *','sa','6.8.1')+field('当前语种 *','sl','zh-CN')+field('当前语言包版本 *','sv','V1.2.0')+field('渠道 *','sc','Amazon US')+'<div class="full" id="result"></div></div>','检查更新');else if(S.layer.startsWith('pack:')){x=P.find(y=>y[0]===S.layer.split(':')[1]);h=draw(x[1],x[0],'<dl class="detail-grid"><dt>语种</dt><dd>'+x[2]+'</dd><dt>当前版本</dt><dd>'+x[3]+' '+tag(x[8])+'</dd><dt>适用范围</dt><dd>'+x[4]+' / '+x[5]+' / '+x[6]+'</dd><dt>文件信息</dt><dd>'+x[7]+' · SHA256 7c9a...e24f</dd><dt>校验标签</dt><dd>v3pro-'+x[2]+'-'+x[3]+'</dd></dl><div class="version-list"><h3>版本历史</h3>'+table('','','版本 状态 更新时间'.split(' '),'<tr><td>'+x[3]+'</td><td>'+tag(x[8])+'</td><td>2026-09-09 17:42</td></tr><tr><td>V1.2.0</td><td>'+tag('已停止')+'</td><td>2026-08-20 16:30</td></tr>',500)+'</div>','<button class="btn btn--primary" data-ver="'+x[0]+'">新建版本</button>')}else if(S.layer.startsWith('rule:')){x=R.find(y=>y[0]===S.layer.split(':')[1]);h=draw(x[1],x[0],'<dl class="detail-grid"><dt>目标语言包</dt><dd>'+x[2]+'</dd><dt>发布阶段</dt><dd>'+tag(x[6])+'</dd><dt>兼容范围</dt><dd>'+x[3]+'</dd><dt>渠道</dt><dd>'+x[4]+'</dd><dt>设备范围</dt><dd>'+x[5]+' · '+x[7]+'</dd></dl>'+info(['命中返回','目标版本、下载地址、文件大小、SHA256、校验标签；未命中返回 no_update。']))}else if(S.layer.startsWith('task:')){x=U.find(y=>y[0]===S.layer.split(':')[1]);let names=['检查命中','APP 下载','蓝牙传输','设备校验','覆盖写入'],fi={'下载失败':1,'蓝牙传输失败':2,'设备校验失败':3,'写入失败':4}[x[5]];h=draw('更新链路详情',x[0],'<dl class="detail-grid"><dt>设备 SN</dt><dd>'+x[1]+'</dd><dt>版本变化</dt><dd>'+x[3]+' → '+x[4]+'</dd><dt>最终结果</dt><dd>'+tag(x[5])+'</dd><dt>错误码</dt><dd>'+x[6]+'</dd></dl><div class="version-list"><h3>处理时间轴</h3><ol class="timeline">'+names.map((n,i)=>'<li class="'+(fi===i?'is-error':fi!==undefined&&i>fi?'is-pending':'')+'"><strong>'+n+'</strong><span>'+(fi===i?x[6]:fi!==undefined&&i>fi?'未执行':'成功')+'</span></li>').join('')+'</ol></div>')}else if(S.layer.startsWith('back:'))h=modal('回滚语言包版本','仅可选择已验证的历史版本','<div class="phase3-form"><div class="change-preview full"><strong>V1.3.0</strong><span>→</span><strong>V1.2.0</strong></div><label class="full"><span class="field-label">回滚原因 *</span><textarea class="control" id="reason"></textarea></label>'+info(['影响说明','只改变后续检查请求，不主动覆盖已写入设备的语言包。'])+'<p id="error" class="validation-error full"></p></div>','确认回滚');if(h){document.body.insertAdjacentHTML('beforeend',h);bindLayer()}}
-function render(){A.innerHTML=page();bind();layer()}function pop(x){T.textContent=x;T.classList.add('is-open');setTimeout(()=>T.classList.remove('is-open'),1800)}function ask(x,f){M.textContent=x;S.pending=f;O.classList.add('is-open')}
-function bind(){document.querySelectorAll('[data-nav]').forEach(x=>x.onclick=e=>{e.preventDefault();S.s=x.dataset.nav;S.q='';S.f='all';location.hash=S.s;render()});document.querySelector('#q')?.addEventListener('input',e=>{S.q=e.target.value;render()});document.querySelector('#f')?.addEventListener('change',e=>{S.f=e.target.value;render()});document.querySelector('#reset')?.addEventListener('click',()=>{S.q='';S.f='all';render()});[['#upload','upload'],['#new-rule','new-rule'],['#sim','sim']].forEach(x=>document.querySelectorAll(x[0]).forEach(y=>y.onclick=()=>{S.layer=x[1];layer()}));document.querySelectorAll('[data-pack]').forEach(x=>x.onclick=()=>{S.layer='pack:'+x.dataset.pack;layer()});document.querySelectorAll('[data-ver]').forEach(x=>x.onclick=()=>{S.layer='ver:'+x.dataset.ver;layer()});document.querySelectorAll('[data-rule]').forEach(x=>x.onclick=()=>{S.layer='rule:'+x.dataset.rule;layer()});document.querySelectorAll('[data-task]').forEach(x=>x.onclick=()=>{S.layer='task:'+x.dataset.task;layer()});document.querySelectorAll('[data-back]').forEach(x=>x.onclick=()=>{S.layer='back:'+x.dataset.back;layer()});document.querySelectorAll('[data-next]').forEach(x=>x.onclick=()=>{let r=R.find(y=>y[0]===x.dataset.next),n=r[6]==='测试'?'灰度':'正式发布';ask('确认推进至'+n+'阶段？',()=>{r[6]=n;r[7]=n==='灰度'?'10%':'100%';render();pop('已进入'+n)})});document.querySelectorAll('[data-stop]').forEach(x=>x.onclick=()=>{let r=R.find(y=>y[0]===x.dataset.stop);ask('停止只阻止新请求命中，不自动恢复已写入设备。确认停止？',()=>{r[6]='已停止';r[7]='0%';render();pop('策略已停止')})})}
-function bindLayer(){document.querySelectorAll('[data-close]').forEach(x=>x.onclick=()=>{S.layer='';layer()});document.querySelectorAll('[data-close-bg]').forEach(x=>x.onclick=e=>{if(e.target===x){S.layer='';layer()}});document.querySelectorAll('[data-ver]').forEach(x=>x.onclick=()=>{S.layer='ver:'+x.dataset.ver;layer()});document.querySelector('#ok')?.addEventListener('click',()=>{if(S.layer==='sim'){let hit=document.querySelector('#sl').value==='zh-CN'&&document.querySelector('#sv').value!=='V1.3.0';document.querySelector('#result').innerHTML=info([hit?'命中更新':'no_update',hit?'返回 V1.3.0、428 KB、SHA256 及校验标签；匹配 POL-1008。':'当前已是最新版本，或没有匹配的生效策略。']);return}if(S.layer.startsWith('upload')||S.layer.startsWith('ver:')){let n=document.querySelector('#name').value.trim(),v=document.querySelector('#version').value.trim(),l=document.querySelector('#locale').value,m=document.querySelector('#model').value,nt=document.querySelector('#note').value.trim();if(!n||!/^V\d+\.\d+\.\d+$/.test(v)||!nt){document.querySelector('#error').textContent='请填写名称、规范版本号（如 V1.3.1）和版本说明。';return}if(P.some(x=>x[2]===l&&x[4]===m&&x[3]===v)){document.querySelector('#error').textContent='同机型与语种下已存在该版本。';return}P.unshift(['LP-NEW',n,l,v,m,document.querySelector('#hw').value,document.querySelector('#fw').value,'待上传','草稿']);S.layer='';render();pop('语言包草稿已保存');return}if(S.layer==='new-rule'){R.unshift(['POL-NEW',document.querySelector('#rn').value,document.querySelector('#rp').value,document.querySelector('#rm').value+' / '+document.querySelector('#rh').value,document.querySelector('#rc').value,'测试白名单','测试','待配置']);S.layer='';render();pop('测试发布策略已创建');return}if(S.layer.startsWith('back:')){if(!document.querySelector('#reason').value.trim()){document.querySelector('#error').textContent='请填写回滚原因。';return}let r=R.find(y=>y[0]===S.layer.split(':')[1]);r[2]='V3 Pro 中文语言包 V1.2.0';r[6]='灰度';r[7]='10%';S.layer='';render();pop('已回滚至 V1.2.0')}})}
-document.querySelector('#dialog-close').onclick=document.querySelector('#dialog-cancel').onclick=()=>O.classList.remove('is-open');document.querySelector('#dialog-confirm').onclick=()=>{let f=S.pending;O.classList.remove('is-open');f?.()};render();
+(() => {
+  'use strict';
+
+  const app = document.querySelector('#app');
+  const overlay = document.querySelector('#overlay');
+  const dialogMessage = document.querySelector('#dialog-message');
+  const toast = document.querySelector('#toast');
+
+  const packages = [
+    { id: 'LP-001', name: 'V3 Pro 中文语言包', locale: 'zh-CN', language: '简体中文', version: 'V1.3.0', models: 'V3 Pro', firmware: 'V3.4.0+', size: '428 KB', status: '已发布', updated: '2026-09-09 17:42', note: '更新专家韵律名称及设备提示文案' },
+    { id: 'LP-002', name: 'V3 Pro English Pack', locale: 'en-US', language: 'English', version: 'V1.2.1', models: 'V3 Pro', firmware: 'V3.4.0+', size: '412 KB', status: '灰度中', updated: '2026-09-10 09:45', note: 'Fix terminology for expert programs' },
+    { id: 'LP-003', name: 'V3 Pro Deutsch Pack', locale: 'de-DE', language: 'Deutsch', version: 'V1.0.0', models: 'V3 Pro', firmware: 'V3.5.0+', size: '436 KB', status: '草稿', updated: '2026-09-10 11:06', note: '德语首版，等待测试设备验证' },
+    { id: 'LP-014', name: 'Air 2 中文语言包', locale: 'zh-CN', language: '简体中文', version: 'V1.1.0', models: 'Air 2', firmware: 'V2.8.0+', size: '405 KB', status: '已停止', updated: '2026-08-28 09:30', note: '历史版本，已由 V1.1.1 替代' }
+  ];
+
+  const releases = [
+    { id: 'REL-1028', packageId: 'LP-001', package: 'V3 Pro 中文语言包', version: 'V1.3.0', target: 'V3 Pro · 全部渠道 · 全部设备', mode: '全量', status: '发布中', operator: '陈剑泽', time: '2026-09-09 18:10' },
+    { id: 'REL-1029', packageId: 'LP-002', package: 'V3 Pro English Pack', version: 'V1.2.1', target: 'V3 Pro · Amazon US · 20% 设备', mode: '灰度 20%', status: '发布中', operator: '刘媛媛', time: '2026-09-10 09:45' },
+    { id: 'REL-1030', packageId: 'LP-003', package: 'V3 Pro Deutsch Pack', version: 'V1.0.0', target: 'V3 Pro · EU · 12 台白名单', mode: '白名单', status: '验证中', operator: '刘媛媛', time: '2026-09-10 11:06' },
+    { id: 'REL-0993', packageId: 'LP-002', package: 'V3 Pro English Pack', version: 'V1.2.0', target: 'V3 Pro · 全部渠道 · 全部设备', mode: '全量', status: '已停止', operator: '池浩', time: '2026-09-07 20:12' }
+  ];
+
+  const updates = [
+    { id: 'TASK-4821', device: 'V3P-A8F214', locale: 'zh-CN', change: 'V1.2.0 → V1.3.0', result: '更新成功', duration: '18.6 s', time: '2026-09-10 14:26', error: '-' },
+    { id: 'TASK-4817', device: 'V3P-B19C02', locale: 'en-US', change: 'V1.2.0 → V1.2.1', result: '写入失败', duration: '17.9 s', time: '2026-09-10 14:22', error: 'DEVICE_WRITE_FAILED' },
+    { id: 'TASK-4809', device: 'V3P-71AC30', locale: 'en-US', change: 'V1.2.0 → V1.2.1', result: '下载失败', duration: '8.0 s', time: '2026-09-10 14:18', error: 'PACKAGE_DOWNLOAD_TIMEOUT' },
+    { id: 'TASK-4795', device: 'V3P-33E911', locale: 'zh-CN', change: 'V1.3.0', result: '无需更新', duration: '0.3 s', time: '2026-09-10 14:02', error: 'no_update' }
+  ];
+
+  const nav = {
+    packages: ['语言包管理', '统一管理语言包及版本'],
+    releases: ['发布记录', '查看发布范围与状态'],
+    updates: ['更新记录', '查看设备更新结果']
+  };
+  const initial = nav[location.hash.slice(1)] ? location.hash.slice(1) : 'packages';
+  const state = { section: initial, query: '', filter: '全部', layer: null, selected: null, pending: null };
+
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[char]));
+
+  function statusTag(status) {
+    const types = {
+      已发布: 'success', 发布中: 'success', 更新成功: 'success',
+      灰度中: 'primary', 验证中: 'primary',
+      草稿: 'warning', 已停止: 'info', 无需更新: 'info',
+      下载失败: 'danger', 写入失败: 'danger'
+    };
+    return `<span class="tag tag--small tag--${types[status] || 'info'}">${status}</span>`;
+  }
+
+  function sidebar() {
+    const links = Object.entries(nav).map(([key, value]) =>
+      `<a class="sidebar-menu__child${state.section === key ? ' is-active' : ''}" href="#${key}" data-nav="${key}">
+        <span class="sidebar-menu__label">${value[0]}</span>
+      </a>`
+    ).join('');
+    return `<aside class="sidebar">
+      <div class="brand-row"><div class="brand-logo">C</div><div class="brand"><strong>Ceres平台三期</strong></div></div>
+      <nav class="sidebar-menu">
+        <button class="sidebar-menu__parent is-active" type="button"><span class="sidebar-menu__label">多语言包</span></button>
+        <div class="sidebar-menu__children">${links}</div>
+        <div class="phase3-nav-note">简化版流程<br>上传 → 发布 → 查看结果</div>
+        <a class="sidebar-menu__parent" href="https://liuyuanyuan808-debug.github.io/ceres-platform/#mode-units">
+          <span class="sidebar-menu__label">返回原平台</span>
+        </a>
+      </nav>
+      <div class="user-footer"><div class="user-card">
+        <img class="avatar-image" src="./assets/ceres-avatar.png" alt="">
+        <div class="user-card__info"><span>当前登录</span><strong>刘媛媛</strong></div>
+      </div></div>
+    </aside>`;
+  }
+
+  function shell(body, action = '') {
+    const [title, subtitle] = nav[state.section];
+    return `<div class="admin-shell">${sidebar()}<main class="content-shell"><section class="page-stack">
+      <header class="page-header-bar">
+        <div><h1>${title}</h1><p class="section-subheading">${subtitle}</p></div>
+        <div class="page-header-actions">${action}</div>
+      </header>
+      <div class="list-page-body">${body}</div>
+    </section></main></div>`;
+  }
+
+  function toolbar(placeholder, options) {
+    return `<section class="filter-toolbar phase3-toolbar">
+      <input class="control" id="query" value="${escapeHtml(state.query)}" placeholder="${placeholder}">
+      <div class="select-wrap"><select class="control" id="filter">
+        <option>全部</option>${options.map(option => `<option${state.filter === option ? ' selected' : ''}>${option}</option>`).join('')}
+      </select></div>
+      <span></span><button class="btn btn--outline" id="reset">重置</button>
+    </section>`;
+  }
+
+  function table(headers, rows, minWidth = 960) {
+    return `<section class="list-table-card"><div class="table-shell"><div class="data-table-scroll-region">
+      <table class="data-table" style="min-width:${minWidth}px"><thead><tr>
+        ${headers.map(header => `<th>${header}</th>`).join('')}
+      </tr></thead><tbody>${rows || `<tr class="empty-row"><td colspan="${headers.length}">暂无符合条件的数据</td></tr>`}</tbody></table>
+    </div></div><footer class="pagination-bar"><span>共 ${(rows.match(/<tr/g) || []).length} 条记录</span></footer></section>`;
+  }
+
+  function packagesPage() {
+    const rows = packages.filter(item =>
+      (state.filter === '全部' || item.status === state.filter) &&
+      [item.name, item.locale, item.models, item.version].join(' ').toLowerCase().includes(state.query.toLowerCase())
+    ).map(item => `<tr>
+      <td><strong>${item.name}</strong><small>${item.id}</small></td>
+      <td>${item.language}<small>${item.locale}</small></td>
+      <td><strong>${item.version}</strong></td><td>${item.models}</td><td>${item.size}</td>
+      <td>${statusTag(item.status)}</td><td>${item.updated}</td>
+      <td class="actions">
+        <button data-detail="${item.id}">查看</button>
+        <button data-version="${item.id}">新建版本</button>
+        <button data-publish="${item.id}">发布</button>
+      </td>
+    </tr>`).join('');
+    return shell(
+      `<div class="info-banner"><strong>简单流程</strong><span>上传语言包后保存为草稿；验证无误后直接从列表发起发布。兼容范围和设备范围在发布时一次配置。</span></div>
+      ${toolbar('搜索语言包名称、语种、机型或版本', ['草稿', '验证中', '灰度中', '已发布', '已停止'])}
+      ${table(['语言包', '语种', '当前版本', '适用机型', '大小', '状态', '更新时间', '操作'], rows, 1080)}`,
+      '<button class="btn btn--primary" id="upload">上传语言包</button>'
+    );
+  }
+
+  function releasesPage() {
+    const rows = releases.filter(item =>
+      (state.filter === '全部' || item.status === state.filter) &&
+      [item.id, item.package, item.target].join(' ').toLowerCase().includes(state.query.toLowerCase())
+    ).map(item => `<tr>
+      <td><strong>${item.package}</strong><small>${item.id}</small></td><td>${item.version}</td>
+      <td><span class="cell-text" title="${item.target}">${item.target}</span></td><td>${item.mode}</td>
+      <td>${statusTag(item.status)}</td><td>${item.operator}</td><td>${item.time}</td>
+      <td class="actions"><button data-release="${item.id}">查看</button>
+        ${item.status !== '已停止' ? `<button class="danger" data-stop="${item.id}">停止</button>` : ''}
+      </td>
+    </tr>`).join('');
+    return shell(
+      `${toolbar('搜索语言包、发布单号或发布范围', ['验证中', '发布中', '已停止'])}
+      ${table(['语言包', '版本', '发布范围', '发布方式', '状态', '操作人', '发布时间', '操作'], rows, 1140)}`
+    );
+  }
+
+  function updatesPage() {
+    const rows = updates.filter(item =>
+      (state.filter === '全部' || item.result === state.filter) &&
+      [item.id, item.device, item.locale, item.error].join(' ').toLowerCase().includes(state.query.toLowerCase())
+    ).map(item => `<tr>
+      <td><strong>${item.id}</strong></td><td>${item.device}</td><td>${item.locale}</td>
+      <td>${item.change}</td><td>${statusTag(item.result)}</td><td>${item.duration}</td><td>${item.time}</td>
+      <td class="actions"><button data-update="${item.id}">查看</button></td>
+    </tr>`).join('');
+    return shell(
+      `<section class="kpi-strip">
+        <div class="kpi-item"><span>今日检查</span><strong>1,284</strong><small>设备请求</small></div>
+        <div class="kpi-item"><span>需要更新</span><strong>726</strong><small>命中率 56.5%</small></div>
+        <div class="kpi-item"><span>更新成功</span><strong>668</strong><small>成功率 92.0%</small></div>
+        <div class="kpi-item"><span>更新失败</span><strong>18</strong><small>可查看失败环节</small></div>
+      </section>
+      ${toolbar('搜索任务 ID、设备 SN 或错误码', ['无需更新', '更新成功', '下载失败', '写入失败'])}
+      ${table(['任务 ID', '设备 SN', '语种', '版本变化', '结果', '耗时', '检查时间', '操作'], rows, 1030)}`
+    );
+  }
+
+  function render() {
+    app.innerHTML = state.section === 'packages' ? packagesPage() :
+      state.section === 'releases' ? releasesPage() : updatesPage();
+    bindPage();
+    renderLayer();
+  }
+
+  const field = (label, id, value = '', wide = false) => `<label class="${wide ? 'full' : ''}">
+    <span class="field-label">${label}</span><input class="control" id="${id}" value="${escapeHtml(value)}">
+  </label>`;
+  const selectField = (label, id, values, selected) => `<label><span class="field-label">${label}</span>
+    <div class="select-wrap"><select class="control" id="${id}">
+      ${values.map(value => `<option${value === selected ? ' selected' : ''}>${value}</option>`).join('')}
+    </select></div>
+  </label>`;
+
+  function modal(title, subtitle, body, confirmText) {
+    return `<div class="modal-backdrop" data-backdrop><section class="phase3-modal">
+      <header><div><h2>${title}</h2><p>${subtitle}</p></div><button class="dialog-close" data-close>×</button></header>
+      <div class="phase3-modal__body">${body}</div>
+      <footer><button class="btn btn--outline" data-close>取消</button><button class="btn btn--primary" id="confirm-layer">${confirmText}</button></footer>
+    </section></div>`;
+  }
+
+  function drawer(title, subtitle, body, footer = '') {
+    return `<div class="drawer-backdrop" data-backdrop><aside class="drawer">
+      <header><div><h2>${title}</h2><p>${subtitle}</p></div><button class="dialog-close" data-close>×</button></header>
+      <div class="drawer__body">${body}</div>${footer ? `<div class="drawer__footer">${footer}</div>` : ''}
+    </aside></div>`;
+  }
+
+  function uploadForm(item) {
+    return `<div class="phase3-form">
+      <div class="full"><span class="field-label">语言包文件 *</span><label class="file-drop">
+        <input id="package-file" type="file" accept=".bin,.zip" hidden>
+        <span id="file-name">点击选择 .bin / .zip 文件（不超过 5 MB）</span>
+      </label></div>
+      ${field('语言包名称 *', 'package-name', item?.name || '')}
+      ${field('版本号 *', 'package-version', item ? 'V1.3.1' : 'V1.0.0')}
+      ${selectField('语种 *', 'package-locale', ['zh-CN', 'en-US', 'de-DE'], item?.locale || 'zh-CN')}
+      ${selectField('适用机型 *', 'package-model', ['V3 Pro', 'Air 2', '全部机型'], item?.models || 'V3 Pro')}
+      <label class="full"><span class="field-label">版本说明 *</span><textarea class="control" id="package-note" placeholder="简要说明本次更新内容"></textarea></label>
+      <p class="validation-error full" id="form-error"></p>
+    </div>`;
+  }
+
+  function publishForm(item) {
+    return `<div class="phase3-form">
+      <div class="change-preview full"><div><span>待发布语言包</span><strong>${item.name}</strong></div><span>→</span><div><span>目标版本</span><strong>${item.version}</strong></div></div>
+      ${selectField('发布方式 *', 'release-mode', ['测试白名单', '灰度发布', '全量发布'], item.status === '草稿' ? '测试白名单' : '灰度发布')}
+      ${selectField('渠道 *', 'release-channel', ['全部渠道', 'Amazon US', 'EU', '中国大陆'], '全部渠道')}
+      ${field('最低固件版本 *', 'release-firmware', item.firmware)}
+      ${field('设备范围', 'release-scope', item.status === '草稿' ? '请输入设备 SN，逗号分隔' : '20%')}
+      <label class="full"><span class="field-label">发布说明 *</span><textarea class="control" id="release-note" placeholder="说明发布目的及验证重点"></textarea></label>
+      <div class="info-banner full"><strong>规则检查</strong><span>当前范围未发现冲突。停止发布只阻止新请求命中，不会恢复已更新设备。</span></div>
+      <p class="validation-error full" id="form-error"></p>
+    </div>`;
+  }
+
+  function renderLayer() {
+    document.querySelectorAll('.modal-backdrop,.drawer-backdrop').forEach(node => node.remove());
+    let html = '';
+    const item = state.selected;
+    if (state.layer === 'upload') html = modal('上传语言包', '填写最少必要信息，保存后再配置发布范围', uploadForm(null), '保存草稿');
+    if (state.layer === 'version') html = modal('新建版本', `基于 ${item.name} 创建新版本`, uploadForm(item), '保存草稿');
+    if (state.layer === 'publish') html = modal('发布语言包', '兼容范围与设备范围在一次操作中完成', publishForm(item), '确认发布');
+    if (state.layer === 'package-detail') html = drawer(item.name, item.id,
+      `<dl class="detail-grid"><dt>语种</dt><dd>${item.language}（${item.locale}）</dd><dt>当前版本</dt><dd>${item.version}</dd>
+      <dt>适用范围</dt><dd>${item.models} · 固件 ${item.firmware}</dd><dt>文件大小</dt><dd>${item.size}</dd>
+      <dt>当前状态</dt><dd>${statusTag(item.status)}</dd><dt>版本说明</dt><dd>${item.note}</dd></dl>
+      <div class="version-list"><h3>历史版本</h3><table class="data-table"><thead><tr><th>版本</th><th>状态</th><th>更新时间</th></tr></thead>
+      <tbody><tr><td>${item.version}</td><td>${statusTag(item.status)}</td><td>${item.updated}</td></tr>
+      <tr><td>V1.2.0</td><td>${statusTag('已停止')}</td><td>2026-08-20 16:30</td></tr></tbody></table></div>`,
+      `<button class="btn btn--outline" data-version="${item.id}">新建版本</button><button class="btn btn--primary" data-publish="${item.id}">发布</button>`
+    );
+    if (state.layer === 'release-detail') html = drawer('发布详情', item.id,
+      `<dl class="detail-grid"><dt>语言包</dt><dd>${item.package} ${item.version}</dd><dt>发布范围</dt><dd>${item.target}</dd>
+      <dt>发布方式</dt><dd>${item.mode}</dd><dt>当前状态</dt><dd>${statusTag(item.status)}</dd>
+      <dt>操作人</dt><dd>${item.operator}</dd><dt>发布时间</dt><dd>${item.time}</dd></dl>`
+    );
+    if (state.layer === 'update-detail') {
+      const failedAt = item.result === '下载失败' ? 1 : item.result === '写入失败' ? 4 : -1;
+      const steps = ['检查版本', '下载语言包', '蓝牙传输', '设备校验', '覆盖写入'];
+      html = drawer('更新详情', item.id,
+        `<dl class="detail-grid"><dt>设备 SN</dt><dd>${item.device}</dd><dt>语种</dt><dd>${item.locale}</dd>
+        <dt>版本变化</dt><dd>${item.change}</dd><dt>结果</dt><dd>${statusTag(item.result)}</dd>
+        <dt>错误码</dt><dd><code>${item.error}</code></dd></dl>
+        <div class="version-list"><h3>更新过程</h3><ol class="timeline">${steps.map((step, index) =>
+          `<li class="${index === failedAt ? 'is-error' : failedAt >= 0 && index > failedAt ? 'is-pending' : ''}">
+            <strong>${step}</strong><span>${index === failedAt ? item.error : failedAt >= 0 && index > failedAt ? '未执行' : '完成'}</span>
+          </li>`).join('')}</ol></div>`
+      );
+    }
+    if (html) {
+      document.body.insertAdjacentHTML('beforeend', html);
+      bindLayer();
+    }
+  }
+
+  function bindPage() {
+    document.querySelectorAll('[data-nav]').forEach(link => link.addEventListener('click', event => {
+      event.preventDefault(); state.section = link.dataset.nav; state.query = ''; state.filter = '全部';
+      location.hash = state.section; render();
+    }));
+    document.querySelector('#query')?.addEventListener('input', event => { state.query = event.target.value; render(); });
+    document.querySelector('#filter')?.addEventListener('change', event => { state.filter = event.target.value; render(); });
+    document.querySelector('#reset')?.addEventListener('click', () => { state.query = ''; state.filter = '全部'; render(); });
+    document.querySelector('#upload')?.addEventListener('click', () => openLayer('upload'));
+    document.querySelectorAll('[data-detail]').forEach(button => button.addEventListener('click', () => openLayer('package-detail', packages.find(item => item.id === button.dataset.detail))));
+    document.querySelectorAll('[data-version]').forEach(button => button.addEventListener('click', () => openLayer('version', packages.find(item => item.id === button.dataset.version))));
+    document.querySelectorAll('[data-publish]').forEach(button => button.addEventListener('click', () => openLayer('publish', packages.find(item => item.id === button.dataset.publish))));
+    document.querySelectorAll('[data-release]').forEach(button => button.addEventListener('click', () => openLayer('release-detail', releases.find(item => item.id === button.dataset.release))));
+    document.querySelectorAll('[data-update]').forEach(button => button.addEventListener('click', () => openLayer('update-detail', updates.find(item => item.id === button.dataset.update))));
+    document.querySelectorAll('[data-stop]').forEach(button => button.addEventListener('click', () => {
+      const release = releases.find(item => item.id === button.dataset.stop);
+      showDialog('停止后只阻止新设备命中，不影响已经更新的设备。确认停止发布？', () => {
+        release.status = '已停止'; render(); showToast('发布已停止');
+      });
+    }));
+  }
+
+  function openLayer(layer, selected = null) { state.layer = layer; state.selected = selected; renderLayer(); }
+  function closeLayer() { state.layer = null; state.selected = null; renderLayer(); }
+
+  function bindLayer() {
+    document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', closeLayer));
+    document.querySelectorAll('[data-backdrop]').forEach(backdrop => backdrop.addEventListener('click', event => {
+      if (event.target === backdrop) closeLayer();
+    }));
+    document.querySelectorAll('[data-version]').forEach(button => button.addEventListener('click', () => openLayer('version', packages.find(item => item.id === button.dataset.version))));
+    document.querySelectorAll('[data-publish]').forEach(button => button.addEventListener('click', () => openLayer('publish', packages.find(item => item.id === button.dataset.publish))));
+    document.querySelector('#package-file')?.addEventListener('change', event => {
+      const file = event.target.files[0];
+      document.querySelector('#file-name').textContent = file ? `${file.name} · ${Math.ceil(file.size / 1024)} KB` : '点击选择文件';
+    });
+    document.querySelector('#confirm-layer')?.addEventListener('click', () => {
+      if (state.layer === 'upload' || state.layer === 'version') savePackage();
+      if (state.layer === 'publish') publishPackage();
+    });
+  }
+
+  function savePackage() {
+    const name = document.querySelector('#package-name').value.trim();
+    const version = document.querySelector('#package-version').value.trim();
+    const locale = document.querySelector('#package-locale').value;
+    const model = document.querySelector('#package-model').value;
+    const note = document.querySelector('#package-note').value.trim();
+    const error = document.querySelector('#form-error');
+    if (!name || !/^V\d+\.\d+\.\d+$/.test(version) || !note) {
+      error.textContent = '请填写名称、三段式版本号（如 V1.3.1）和版本说明。'; return;
+    }
+    if (packages.some(item => item.locale === locale && item.models === model && item.version === version)) {
+      error.textContent = '该机型与语种下已存在相同版本。'; return;
+    }
+    packages.unshift({ id: `LP-${100 + packages.length}`, name, locale, language: locale, version, models: model, firmware: '待发布时配置', size: '待上传', status: '草稿', updated: '2026-09-11 10:00', note });
+    closeLayer(); render(); showToast('语言包草稿已保存');
+  }
+
+  function publishPackage() {
+    const note = document.querySelector('#release-note').value.trim();
+    const error = document.querySelector('#form-error');
+    if (!note) { error.textContent = '请填写发布说明。'; return; }
+    const item = state.selected;
+    const mode = document.querySelector('#release-mode').value;
+    const channel = document.querySelector('#release-channel').value;
+    const scope = document.querySelector('#release-scope').value;
+    releases.unshift({
+      id: `REL-${1100 + releases.length}`, packageId: item.id, package: item.name, version: item.version,
+      target: `${item.models} · ${channel} · ${scope || mode}`, mode, status: mode === '测试白名单' ? '验证中' : '发布中',
+      operator: '刘媛媛', time: '2026-09-11 10:00'
+    });
+    item.status = mode === '灰度发布' ? '灰度中' : mode === '全量发布' ? '已发布' : '验证中';
+    closeLayer(); state.section = 'releases'; location.hash = 'releases'; render(); showToast('发布任务已创建');
+  }
+
+  function showDialog(message, action) {
+    dialogMessage.textContent = message; state.pending = action; overlay.classList.add('is-open');
+  }
+  function hideDialog() { overlay.classList.remove('is-open'); state.pending = null; }
+  function showToast(message) {
+    toast.textContent = message; toast.classList.add('is-open');
+    window.setTimeout(() => toast.classList.remove('is-open'), 1800);
+  }
+
+  document.querySelector('#dialog-close').addEventListener('click', hideDialog);
+  document.querySelector('#dialog-cancel').addEventListener('click', hideDialog);
+  document.querySelector('#dialog-confirm').addEventListener('click', () => {
+    const action = state.pending; hideDialog(); action?.();
+  });
+  overlay.addEventListener('click', event => { if (event.target === overlay) hideDialog(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') { hideDialog(); closeLayer(); } });
+  render();
 })();
